@@ -1,4 +1,5 @@
 import PageContainer from "@/components/layout/page-container";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -19,13 +20,19 @@ export default function Home() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <button className="rounded-xl bg-black px-6 py-3 text-white transition hover:bg-gray-800">
+            <Link
+              href="/predict"
+              className="rounded-xl bg-black px-6 py-3 text-white transition hover:bg-gray-800"
+            >
               Start Prediction
-            </button>
+            </Link>
 
-            <button className="rounded-xl border border-gray-300 bg-white px-6 py-3 transition hover:bg-gray-100">
+            <Link
+              href="/history"
+              className="rounded-xl border border-gray-300 bg-white px-6 py-3 transition hover:bg-gray-100"
+            >
               View History
-            </button>
+            </Link>
           </div>
         </div>
       </PageContainer>
