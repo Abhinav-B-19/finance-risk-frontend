@@ -3,6 +3,7 @@ import "./globals.css";
 
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "FinanceRisk AI",
@@ -26,6 +27,7 @@ export default function RootLayout({
 
           <Footer />
         </div>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
