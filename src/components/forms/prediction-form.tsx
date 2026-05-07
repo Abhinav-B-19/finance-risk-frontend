@@ -29,6 +29,8 @@ const PredictionForm = () => {
 
       const response = await createPrediction(data);
 
+      localStorage.setItem("predictionResult", JSON.stringify(response));
+
       toast.success("Prediction generated successfully", {
         duration: 4000,
         style: {
@@ -50,8 +52,16 @@ const PredictionForm = () => {
           "Something went wrong while generating prediction";
       
         if (axios.isAxiosError(error)) {
-          errorMessage =
-            error.response?.data?.message || errorMessage;
+            const backendMessage = error.response?.data?.message;
+            if (
+                backendMessage &&
+                !backendMessage.includes("<!DOCTYPE")
+            ) {
+                errorMessage = backendMessage;
+            } else {
+                errorMessage =
+                "Prediction service is temporarily unavailable";
+            }
         }
       
         toast.error(errorMessage, {
