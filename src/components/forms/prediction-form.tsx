@@ -1,219 +1,330 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+
 import { useForm } from "react-hook-form";
 
-import PageContainer from "@/components/layout/page-container";
-import { createPrediction } from "@/services/prediction-service";
-import { PredictionRequest } from "@/types/prediction";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import axios from "axios";
 import { toast } from "sonner";
+
+import {
+  predictionSchema,
+  PredictionSchemaType,
+} from "@/validations/prediction-schema";
+
+import { createPrediction } from "@/services/prediction-service";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { Input } from "@/components/ui/input";
+
+import { Button } from "@/components/ui/button";
 
 const PredictionForm = () => {
   const router = useRouter();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<PredictionSchemaType>({
+    resolver: zodResolver(predictionSchema),
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<PredictionRequest>();
+    defaultValues: {
+      name: "",
+      email: "",
+      income: undefined,
+      expenses: undefined,
+      debt: undefined,
+    },
+  });
 
-  const onSubmit = async (data: PredictionRequest) => {
+  const isSubmitting =
+    form.formState.isSubmitting;
+
+  const onSubmit = async (
+    data: PredictionSchemaType
+  ) => {
     try {
-      setIsSubmitting(true);
+      const response =
+        await createPrediction(data);
 
-      const response = await createPrediction(data);
+      localStorage.setItem(
+        "userKey",
+        response.userKey
+      );
 
-      toast.success("Prediction generated successfully", {
-        duration: 4000,
+      toast.success(
+        "Prediction generated successfully",
+        {
+          duration: 3000,
+
+          style: {
+            background: "#16a34a",
+            color: "white",
+            border: "none",
+          },
+        }
+      );
+
+      router.prefetch(
+        `/results/${response.predictionId}`
+      );
+
+      router.push(
+        `/results/${response.predictionId}`
+      );
+    } catch (error: any) {
+      console.error(error);
+
+      let errorMessage =
+        "Prediction service temporarily unavailable";
+
+      const backendMessage =
+        error.response?.data?.message;
+
+      if (
+        backendMessage &&
+        !backendMessage.includes(
+          "<!DOCTYPE"
+        )
+      ) {
+        errorMessage = backendMessage;
+      }
+
+      toast.error(errorMessage, {
+        duration: 5000,
+
         style: {
-          background: "#16a34a",
+          background: "#dc2626",
           color: "white",
           border: "none",
         },
       });
-
-      console.log(response);
-
-      reset();
-
-      router.push(`/results/${response.predictionId}`);
-    } catch (error) {
-        console.error(error);
-      
-        let errorMessage =
-          "Something went wrong while generating prediction";
-      
-        if (axios.isAxiosError(error)) {
-            const backendMessage = error.response?.data?.message;
-            if (
-                backendMessage &&
-                !backendMessage.includes("<!DOCTYPE")
-            ) {
-                errorMessage = backendMessage;
-            } else {
-                errorMessage =
-                "Prediction service is temporarily unavailable";
-            }
-        }
-      
-        toast.error(errorMessage, {
-          duration: 5000,
-        });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <PageContainer>
-      <div className="mx-auto max-w-2xl rounded-2xl border bg-white p-8 shadow-sm">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Financial Risk Prediction
-          </h1>
+    <div className="fixed inset-0 bg-white overflow-hidden">
+      <div className="h-screen w-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-3xl h-full flex flex-col justify-center">
+          {/* Heading */}
+          <div className="mb-6 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+              Financial Risk Prediction
+            </h1>
 
-          <p className="mt-2 text-gray-600">
-            Enter your financial details to forecast future risk.
-          </p>
+            <p className="mt-2 text-gray-500 text-sm md:text-base">
+              Enter your financial details
+              to generate AI-powered risk
+              forecasts.
+            </p>
+          </div>
+
+          {/* Form */}
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(
+                onSubmit
+              )}
+              className="space-y-4"
+            >
+              {/* Full Name */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({
+                  field,
+                }: any) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Full Name
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your full name"
+                        disabled={
+                          isSubmitting
+                        }
+                        className="h-12 rounded-xl text-base"
+                        {...field}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({
+                  field,
+                }: any) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Email Address
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        disabled={
+                          isSubmitting
+                        }
+                        className="h-12 rounded-xl text-base"
+                        {...field}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Income */}
+              <FormField
+                control={form.control}
+                name="income"
+                render={({
+                  field,
+                }: any) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Monthly Income
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="50000"
+                        disabled={
+                          isSubmitting
+                        }
+                        className="h-12 rounded-xl text-base"
+                        {...field}
+                        value={
+                          field.value ??
+                          ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Expenses */}
+              <FormField
+                control={form.control}
+                name="expenses"
+                render={({
+                  field,
+                }: any) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Monthly Expenses
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="25000"
+                        disabled={
+                          isSubmitting
+                        }
+                        className="h-12 rounded-xl text-base"
+                        {...field}
+                        value={
+                          field.value ??
+                          ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Debt */}
+              <FormField
+                control={form.control}
+                name="debt"
+                render={({
+                  field,
+                }: any) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Total Debt
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="100000"
+                        disabled={
+                          isSubmitting
+                        }
+                        className="h-12 rounded-xl text-base"
+                        {...field}
+                        value={
+                          field.value ??
+                          ""
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-12 w-full rounded-xl bg-black text-base font-semibold text-white hover:bg-gray-900"
+              >
+                {isSubmitting
+                  ? "Generating Prediction..."
+                  : "Generate Prediction"}
+              </Button>
+            </form>
+          </Form>
         </div>
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Name
-            </label>
-
-            <input
-              type="text"
-              {...register("name", {
-                required: "Name is required",
-              })}
-              className="w-full rounded-xl border px-4 py-3 outline-none transition focus:border-black"
-            />
-
-            {errors.name && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.name.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Email
-            </label>
-
-            <input
-              type="email"
-              {...register("email", {
-                required: "Email is required",
-              })}
-              className="w-full rounded-xl border px-4 py-3 outline-none transition focus:border-black"
-            />
-
-            {errors.email && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Income
-            </label>
-
-            <input
-              type="number"
-              {...register("income", {
-                required: "Income is required",
-                min: {
-                    value: 1,
-                    message: "Income must be greater than 0",
-                },
-                valueAsNumber: true,
-              })}
-              className="w-full rounded-xl border px-4 py-3 outline-none transition focus:border-black"
-            />
-
-            {errors.income && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.income.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Expenses
-            </label>
-
-            <input
-              type="number"
-              {...register("expenses", {
-                required: "Expenses are required",
-                min: {
-                    value: 0,
-                    message: "Expenses cannot be negative",
-                },
-                valueAsNumber: true,
-              })}
-              className="w-full rounded-xl border px-4 py-3 outline-none transition focus:border-black"
-            />
-
-            {errors.expenses && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.expenses.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Debt
-            </label>
-
-            <input
-              type="number"
-              {...register("debt", {
-                required: "Debt is required",
-                min: {
-                    value: 0,
-                    message: "Debt cannot be negative",
-                },
-                valueAsNumber: true,
-              })}
-              className="w-full rounded-xl border px-4 py-3 outline-none transition focus:border-black"
-            />
-
-            {errors.debt && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.debt.message}
-              </p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-xl bg-black px-6 py-3 font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSubmitting
-              ? "Generating Prediction..."
-              : "Generate Prediction"}
-          </button>
-        </form>
       </div>
-    </PageContainer>
+    </div>
   );
 };
 
