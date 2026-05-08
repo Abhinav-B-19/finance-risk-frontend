@@ -29,8 +29,6 @@ const PredictionForm = () => {
 
       const response = await createPrediction(data);
 
-      localStorage.setItem("predictionResult", JSON.stringify(response));
-
       toast.success("Prediction generated successfully", {
         duration: 4000,
         style: {
@@ -44,7 +42,7 @@ const PredictionForm = () => {
 
       reset();
 
-      router.push(`/results?userKey=${response.userKey}`);
+      router.push(`/results/${response.predictionId}`);
     } catch (error) {
         console.error(error);
       

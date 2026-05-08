@@ -1,54 +1,122 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 import PageContainer from "@/components/layout/page-container";
 
-import { PredictionResponse } from "@/types/prediction";
+import {
+  PredictionDetails,
+  Forecast,
+} from "@/types/prediction";
 
-const ResultsDashboard = () => {
-  const searchParams = useSearchParams();
+import { getPredictionDetails } from "@/services/prediction-details-service";
 
-  const userKey = searchParams.get("userKey");
+interface ResultsDashboardProps {
+  predictionId: string;
+}
 
+const getRiskTextColor = (
+  riskLevel: string
+) => {
+  switch (riskLevel) {
+    case "LOW":
+      return "text-green-500";
+
+    case "MEDIUM":
+      return "text-yellow-500";
+
+    case "HIGH":
+      return "text-red-500";
+
+    default:
+      return "text-gray-500";
+  }
+};
+
+const getRiskBadgeColor = (
+  riskLevel: string
+) => {
+  switch (riskLevel) {
+    case "LOW":
+      return "bg-green-100 text-green-700";
+
+    case "MEDIUM":
+      return "bg-yellow-100 text-yellow-700";
+
+    case "HIGH":
+      return "bg-red-100 text-red-700";
+
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
+const ResultsDashboard = ({
+  predictionId,
+}: ResultsDashboardProps) => {
   const [predictionData, setPredictionData] =
-    useState<PredictionResponse | null>(null);
+    useState<PredictionDetails | null>(null);
+
+  const [isLoading, setIsLoading] =
+    useState(true);
 
   useEffect(() => {
-    const storedData =
-      localStorage.getItem("predictionResult");
+    const fetchPrediction = async () => {
+      try {
+        const response =
+          await getPredictionDetails(
+            predictionId
+          );
 
-    if (storedData) {
-      setPredictionData(JSON.parse(storedData));
-    }
-  }, []);
+        setPredictionData(response);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  if (!predictionData) {
+    fetchPrediction();
+  }, [predictionId]);
+
+  if (isLoading) {
     return (
       <PageContainer>
-        <div className="flex items-center justify-center py-24">
-          <p className="text-gray-500">
-            Loading prediction results...
-          </p>
+        <div className="space-y-8 animate-pulse">
+          <div className="space-y-4">
+            <div className="h-4 w-40 rounded bg-gray-200" />
+
+            <div className="h-12 w-96 rounded bg-gray-200" />
+
+            <div className="h-4 w-32 rounded bg-gray-200" />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="h-40 rounded-2xl border bg-gray-100"
+              />
+            ))}
+          </div>
+
+          <div className="h-96 rounded-2xl border bg-gray-100" />
         </div>
       </PageContainer>
     );
   }
 
-  const forecastMonths = Object.keys(
-    predictionData.predictions
-  ).length;
-
-  const highestRiskScore = Math.max(
-    ...Object.values(
-      predictionData.predictions
-    ).map((item) => item.risk_score)
-  );
-
-  const riskLevel = Object.values(
-    predictionData.predictions
-  )[0]?.risk_level;
+  if (!predictionData) {
+    return (
+      <PageContainer>
+        <div className="flex items-center justify-center py-24">
+          <p className="text-red-500">
+            Failed to load prediction data
+          </p>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -63,7 +131,8 @@ const ResultsDashboard = () => {
           </h1>
 
           <p className="mt-4 text-gray-600">
-            User Key: {userKey}
+            Prediction ID:{" "}
+            {predictionData.predictionId}
           </p>
         </div>
 
@@ -74,7 +143,10 @@ const ResultsDashboard = () => {
             </p>
 
             <h2 className="mt-3 text-4xl font-bold">
-              {forecastMonths}
+              {
+                predictionData.summary
+                  .forecastMonths
+              }
             </h2>
           </div>
 
@@ -83,8 +155,16 @@ const ResultsDashboard = () => {
               Highest Risk Score
             </p>
 
-            <h2 className="mt-3 text-4xl font-bold text-red-500">
-              {highestRiskScore}
+            <h2
+              className={`mt-3 text-4xl font-bold ${getRiskTextColor(
+                predictionData.summary
+                  .overallRiskLevel
+              )}`}
+            >
+              {
+                predictionData.summary
+                  .highestRiskScore
+              }
             </h2>
           </div>
 
@@ -93,9 +173,19 @@ const ResultsDashboard = () => {
               Risk Level
             </p>
 
-            <h2 className="mt-3 text-4xl font-bold text-red-500">
-              {riskLevel}
-            </h2>
+            <div className="mt-4">
+              <span
+                className={`inline-flex rounded-full px-4 py-2 text-2xl font-bold ${getRiskBadgeColor(
+                  predictionData.summary
+                    .overallRiskLevel
+                )}`}
+              >
+                {
+                  predictionData.summary
+                    .overallRiskLevel
+                }
+              </span>
+            </div>
           </div>
         </div>
 
@@ -106,42 +196,60 @@ const ResultsDashboard = () => {
             </h2>
 
             <p className="mt-2 text-gray-600">
-              Forecasted financial risk across future months.
+              Forecasted financial risk
+              across future months.
             </p>
           </div>
 
           <div className="space-y-4">
-            {Object.entries(
-              predictionData.predictions
-            ).map(([month, forecast]) => (
-              <div
-                key={month}
-                className="flex items-center justify-between rounded-xl border p-5 transition hover:bg-gray-50"
-              >
-                <div>
-                  <p className="text-lg font-semibold">
-                    {month}
-                  </p>
+            {predictionData.forecasts.map(
+              (
+                forecast: Forecast
+              ) => (
+                <div
+                  key={
+                    forecast.forecastMonth
+                  }
+                  className="flex items-center justify-between rounded-xl border p-5 transition hover:bg-gray-50"
+                >
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {
+                        forecast.forecastMonth
+                      }
+                    </p>
 
-                  <p className="mt-1 text-sm text-gray-500">
-                    Risk Level:{" "}
-                    <span className="font-medium text-red-500">
-                      {forecast.risk_level}
-                    </span>
-                  </p>
+                    <div className="mt-2">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getRiskBadgeColor(
+                          forecast.riskLevel
+                        )}`}
+                      >
+                        {
+                          forecast.riskLevel
+                        }
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p
+                      className={`text-3xl font-bold ${getRiskTextColor(
+                        forecast.riskLevel
+                      )}`}
+                    >
+                      {
+                        forecast.riskScore
+                      }
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      Risk Score
+                    </p>
+                  </div>
                 </div>
-
-                <div className="text-right">
-                  <p className="text-3xl font-bold text-red-500">
-                    {forecast.risk_score}
-                  </p>
-
-                  <p className="mt-1 text-sm text-gray-500">
-                    Risk Score
-                  </p>
-                </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </div>
