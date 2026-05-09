@@ -53,7 +53,7 @@ const Navbar = () => {
         {/* CENTER */}
         <div className="flex justify-center">
           <Link
-            href="/predict"
+            href="/"
             className="truncate text-center text-lg font-bold tracking-tight sm:text-2xl"
           >
             FinanceRisk AI
