@@ -8,7 +8,6 @@ import PageContainer from "@/components/layout/page-container";
 
 import {
   PredictionDetails,
-  Forecast,
 } from "@/types/prediction";
 
 import { getPredictionDetails } from "@/services/prediction-details-service";
@@ -19,6 +18,8 @@ import {
   getRiskBadgeColor,
   getRiskTextColor,
 } from "@/lib/risk-utils";
+
+import { formatDateTime } from "@/lib/date-utils";
 
 interface ResultsDashboardProps {
   predictionId: string;
@@ -36,20 +37,25 @@ const ResultsDashboard = ({
     useState(true);
 
   useEffect(() => {
-    const fetchPrediction = async () => {
-      try {
-        const response =
-          await getPredictionDetails(
-            predictionId
-          );
+    window.scrollTo(0, 0);
 
-        setPredictionData(response);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const fetchPrediction =
+      async () => {
+        try {
+          const response =
+            await getPredictionDetails(
+              predictionId
+            );
+
+          setPredictionData(
+            response
+          );
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
     fetchPrediction();
   }, [predictionId]);
@@ -67,12 +73,14 @@ const ResultsDashboard = ({
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="h-40 rounded-2xl border bg-gray-100"
-              />
-            ))}
+            {[1, 2, 3].map(
+              (item) => (
+                <div
+                  key={item}
+                  className="h-40 rounded-2xl border bg-gray-100"
+                />
+              )
+            )}
           </div>
 
           <div className="h-[500px] rounded-2xl border bg-gray-100" />
@@ -146,19 +154,52 @@ const ResultsDashboard = ({
             Financial Risk Forecast Dashboard
           </h1>
 
-          <p className="mt-4 text-gray-600">
-            Prediction ID:{" "}
-            {predictionData.predictionId}
-          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+            <p>
+              Prediction ID:
+              <span className="ml-1 font-semibold text-gray-900">
+                {
+                  predictionData.predictionId
+                }
+              </span>
+            </p>
+
+            <span>
+              •
+            </span>
+
+            <p>
+              Generated on:
+              <span className="ml-1 font-semibold text-gray-900">
+                {formatDateTime(
+                  predictionData.createdAt
+                )}
+              </span>
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <span
+              className={`inline-flex rounded-full px-4 py-2 text-lg font-bold ${getRiskBadgeColor(
+                predictionData.summary
+                  .overallRiskLevel
+              )}`}
+            >
+              {
+                predictionData.summary
+                  .overallRiskLevel
+              }
+            </span>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm">
             <p className="text-sm text-gray-500">
               Forecast Months
             </p>
 
-            <h2 className="mt-3 text-4xl font-bold">
+            <h2 className="mt-4 text-4xl font-bold">
               {
                 predictionData.summary
                   .forecastMonths
@@ -166,13 +207,13 @@ const ResultsDashboard = ({
             </h2>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm">
             <p className="text-sm text-gray-500">
               Highest Risk Score
             </p>
 
             <h2
-              className={`mt-3 text-4xl font-bold ${getRiskTextColor(
+              className={`mt-4 text-4xl font-bold ${getRiskTextColor(
                 predictionData.summary
                   .overallRiskLevel
               )}`}
@@ -184,14 +225,14 @@ const ResultsDashboard = ({
             </h2>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm">
             <p className="text-sm text-gray-500">
               Risk Level
             </p>
 
             <div className="mt-4">
               <span
-                className={`inline-flex rounded-full px-4 py-2 text-2xl font-bold ${getRiskBadgeColor(
+                className={`inline-flex rounded-full px-4 py-2 text-xl font-bold ${getRiskBadgeColor(
                   predictionData.summary
                     .overallRiskLevel
                 )}`}
@@ -205,47 +246,52 @@ const ResultsDashboard = ({
           </div>
         </div>
 
-        <div className="grid items-stretch gap-6 lg:grid-cols-4">
-          <div className="lg:col-span-3">
-            <RiskTrendChart
-              data={chartData}
-            />
+        <div className="grid gap-6 xl:grid-cols-4">
+          <div className="rounded-2xl border bg-white p-8 shadow-sm xl:col-span-3">
+            <h2 className="text-3xl font-bold">
+              Risk Trend Analysis
+            </h2>
+
+            <p className="mt-2 text-gray-500">
+              Forecasted financial risk progression across future months.
+            </p>
+
+            <div className="mt-8 h-[450px]">
+              <RiskTrendChart
+                data={chartData}
+              />
+            </div>
           </div>
 
-          <div className="flex h-full flex-col rounded-2xl border bg-white p-6 shadow-sm">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold tracking-tight">
-                Monthly Forecast Breakdown
-              </h2>
+          <div className="rounded-2xl border bg-white p-8 shadow-sm">
+            <h2 className="text-3xl font-bold">
+              Monthly Forecast Breakdown
+            </h2>
 
-              <p className="mt-2 text-gray-500">
-                Forecasted financial risk
-                across future months.
-              </p>
-            </div>
+            <p className="mt-2 text-gray-500">
+              Forecasted financial risk across future months.
+            </p>
 
-            <div className="flex-1 space-y-4">
+            <div className="mt-8 space-y-4">
               {predictionData.forecasts.map(
-                (
-                  forecast: Forecast
-                ) => (
+                (forecast) => (
                   <div
                     key={
                       forecast.forecastMonth
                     }
-                    className="rounded-xl border p-4 transition hover:bg-gray-50"
+                    className="rounded-2xl border p-5"
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="font-semibold">
+                        <h3 className="text-2xl font-bold">
                           {
                             forecast.forecastMonth
                           }
-                        </p>
+                        </h3>
 
                         <div className="mt-3">
                           <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getRiskBadgeColor(
+                            className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getRiskBadgeColor(
                               forecast.riskLevel
                             )}`}
                           >
@@ -257,17 +303,17 @@ const ResultsDashboard = ({
                       </div>
 
                       <div className="text-right">
-                        <p
-                          className={`text-3xl font-bold ${getRiskTextColor(
+                        <h3
+                          className={`text-5xl font-bold ${getRiskTextColor(
                             forecast.riskLevel
                           )}`}
                         >
                           {
                             forecast.riskScore
                           }
-                        </p>
+                        </h3>
 
-                        <p className="text-xs text-gray-500">
+                        <p className="mt-1 text-sm text-gray-500">
                           Risk Score
                         </p>
                       </div>
@@ -275,76 +321,6 @@ const ResultsDashboard = ({
                   </div>
                 )
               )}
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold tracking-tight">
-              Risk Insights
-            </h2>
-
-            <p className="mt-2 text-gray-500">
-              Automated interpretation of
-              financial risk forecasts.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl bg-gray-50 p-5">
-              <p className="text-sm font-medium text-gray-500">
-                Overall Risk Level
-              </p>
-
-              <p className="mt-3 text-base leading-7 text-gray-700">
-                Financial profile currently
-                indicates a
-                <span
-                  className={`ml-1 font-semibold ${getRiskTextColor(
-                    predictionData.summary
-                      .overallRiskLevel
-                  )}`}
-                >
-                  {
-                    predictionData.summary
-                      .overallRiskLevel
-                  }
-                </span>{" "}
-                risk pattern.
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-gray-50 p-5">
-              <p className="text-sm font-medium text-gray-500">
-                Forecast Analysis
-              </p>
-
-              <p className="mt-3 text-base leading-7 text-gray-700">
-                Highest projected financial
-                risk score is
-                <span className="ml-1 font-semibold">
-                  {
-                    predictionData.summary
-                      .highestRiskScore
-                  }
-                </span>
-                .
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-gray-50 p-5">
-              <p className="text-sm font-medium text-gray-500">
-                Debt-to-Income Analysis
-              </p>
-
-              <p className="mt-3 text-base leading-7 text-gray-700">
-                Current DTI ratio is
-                <span className="ml-1 font-semibold">
-                  {predictionData.dti}%
-                </span>
-                .
-              </p>
             </div>
           </div>
         </div>
