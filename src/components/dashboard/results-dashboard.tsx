@@ -78,7 +78,7 @@ const ResultsDashboard = ({
             <div className="h-4 w-32 rounded bg-gray-200" />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {[1, 2, 3].map(
               (item) => (
                 <div
@@ -149,7 +149,7 @@ const ResultsDashboard = ({
         transition={{
           duration: 0.3,
         }}
-        className="space-y-8"
+        className="space-y-6 lg:space-y-8"
       >
         <div>
           <p className="text-sm font-medium uppercase tracking-widest text-indigo-600">
@@ -253,7 +253,7 @@ const ResultsDashboard = ({
         </div>
 
         <div className="grid gap-6 xl:grid-cols-4">
-          <div className="rounded-2xl border bg-white p-8 shadow-sm xl:col-span-3">
+          <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-5 lg:p-6 xl:col-span-3">
             <h2 className="text-3xl font-bold">
               Risk Trend Analysis
             </h2>
@@ -262,14 +262,14 @@ const ResultsDashboard = ({
               Forecasted financial risk progression across future months.
             </p>
 
-            <div className="mt-8 h-[450px]">
+            <div className="mt-4 h-[280px] sm:h-[340px] md:h-[400px] lg:h-[450px]">
               <RiskTrendChart
                 data={chartData}
               />
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white p-8 shadow-sm">
+          <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6 lg:p-8">
             <h2 className="text-3xl font-bold leading-tight">
               Monthly Forecast Breakdown
             </h2>
@@ -331,7 +331,7 @@ const ResultsDashboard = ({
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6 lg:p-8">
           <h2 className="text-3xl font-bold">
             Risk Insights
           </h2>
@@ -340,7 +340,7 @@ const ResultsDashboard = ({
             Automated interpretation of financial risk forecasts.
           </p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div className="rounded-2xl bg-gray-50 p-5">
               <h3 className="text-lg font-semibold">
                 Overall Risk Level
