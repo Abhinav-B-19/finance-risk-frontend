@@ -14,6 +14,8 @@ import { PredictionHistoryItem } from "@/types/prediction";
 
 import { formatDateTime } from "@/lib/date-utils";
 
+import { toast } from "sonner";
+
 import {
   getRiskBadgeColor,
 } from "@/lib/risk-utils";
@@ -47,6 +49,9 @@ const HistoryDashboard = () => {
 
         setHistoryData(response);
       } catch (error) {
+        toast.error(
+          "Failed to load prediction history"
+        );
         console.error(error);
       } finally {
         setIsLoading(false);

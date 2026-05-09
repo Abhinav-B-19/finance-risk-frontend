@@ -14,6 +14,8 @@ import { getPredictionDetails } from "@/services/prediction-details-service";
 
 import RiskTrendChart from "@/components/charts/risk-trend-chart";
 
+import { toast } from "sonner";
+
 import {
   getRiskBadgeColor,
   getRiskTextColor,
@@ -51,6 +53,10 @@ const ResultsDashboard = ({
             response
           );
         } catch (error) {
+          toast.error(
+            "Failed to load prediction analytics"
+          );
+
           console.error(error);
         } finally {
           setIsLoading(false);
@@ -264,7 +270,7 @@ const ResultsDashboard = ({
           </div>
 
           <div className="rounded-2xl border bg-white p-8 shadow-sm">
-            <h2 className="text-3xl font-bold">
+            <h2 className="text-3xl font-bold leading-tight">
               Monthly Forecast Breakdown
             </h2>
 
@@ -281,9 +287,9 @@ const ResultsDashboard = ({
                     }
                     className="rounded-2xl border p-5"
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h3 className="text-2xl font-bold">
+                        <h3 className="text-lg font-bold whitespace-nowrap">
                           {
                             forecast.forecastMonth
                           }
@@ -304,7 +310,7 @@ const ResultsDashboard = ({
 
                       <div className="text-right">
                         <h3
-                          className={`text-5xl font-bold ${getRiskTextColor(
+                          className={`text-4xl font-bold ${getRiskTextColor(
                             forecast.riskLevel
                           )}`}
                         >
@@ -321,6 +327,74 @@ const ResultsDashboard = ({
                   </div>
                 )
               )}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border bg-white p-8 shadow-sm">
+          <h2 className="text-3xl font-bold">
+            Risk Insights
+          </h2>
+
+          <p className="mt-2 text-gray-500">
+            Automated interpretation of financial risk forecasts.
+          </p>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl bg-gray-50 p-5">
+              <h3 className="text-lg font-semibold">
+                Overall Risk Level
+              </h3>
+
+              <p className="mt-3 text-gray-600">
+                Financial profile currently indicates a{" "}
+                <span
+                  className={`font-semibold ${getRiskTextColor(
+                    predictionData.summary
+                      .overallRiskLevel
+                  )}`}
+                >
+                  {
+                    predictionData.summary
+                      .overallRiskLevel
+                  }
+                </span>{" "}
+                risk pattern.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-gray-50 p-5">
+              <h3 className="text-lg font-semibold">
+                Forecast Analysis
+              </h3>
+
+              <p className="mt-3 text-gray-600">
+                Highest projected financial risk score is{" "}
+                <span className="font-semibold text-black">
+                  {
+                    predictionData.summary
+                      .highestRiskScore
+                  }
+                </span>
+                .
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-gray-50 p-5">
+              <h3 className="text-lg font-semibold">
+                Debt-to-Income Analysis
+              </h3>
+
+              <p className="mt-3 text-gray-600">
+                Current DTI ratio is{" "}
+                <span className="font-semibold text-black">
+                {(
+                  predictionData.dti * 100
+                ).toFixed(1)}
+                %
+                </span>
+                .
+              </p>
             </div>
           </div>
         </div>

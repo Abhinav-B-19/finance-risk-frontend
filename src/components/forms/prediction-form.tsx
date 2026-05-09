@@ -79,6 +79,9 @@ const PredictionForm = () => {
         `/results/${response.predictionId}`
       );
     } catch (error: any) {
+      toast.error(
+        "Failed to generate prediction"
+      );
       console.error(error);
 
       let errorMessage =
