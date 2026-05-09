@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import PageContainer from "@/components/layout/page-container";
 
-import { PredictionHistoryItem } from "@/types/prediction";
-
 import { getPredictionHistory } from "@/services/history-service";
+
+import { PredictionHistoryItem } from "@/types/prediction";
 
 const getRiskBadgeColor = (
   riskLevel: string
@@ -29,9 +29,7 @@ const getRiskBadgeColor = (
 };
 
 const HistoryDashboard = () => {
-  const router = useRouter();
-
-  const [history, setHistory] =
+  const [historyData, setHistoryData] =
     useState<
       PredictionHistoryItem[]
     >([]);
@@ -48,6 +46,7 @@ const HistoryDashboard = () => {
           );
 
         if (!userKey) {
+          setHistoryData([]);
           return;
         }
 
@@ -56,7 +55,7 @@ const HistoryDashboard = () => {
             userKey
           );
 
-        setHistory(response);
+        setHistoryData(response);
       } catch (error) {
         console.error(error);
       } finally {
@@ -71,12 +70,49 @@ const HistoryDashboard = () => {
     return (
       <PageContainer>
         <div className="space-y-6 animate-pulse">
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="h-40 rounded-2xl border bg-gray-100"
-            />
-          ))}
+          <div className="space-y-4">
+            <div className="h-4 w-40 rounded bg-gray-200" />
+
+            <div className="h-12 w-80 rounded bg-gray-200" />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="h-56 rounded-2xl border bg-gray-100"
+              />
+            ))}
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (historyData.length === 0) {
+    return (
+      <PageContainer>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="max-w-md rounded-2xl border bg-white p-10 text-center shadow-sm">
+            <div className="text-5xl">
+              📊
+            </div>
+
+            <h2 className="mt-6 text-2xl font-bold">
+              No Prediction History
+            </h2>
+
+            <p className="mt-3 text-gray-500">
+              Generate your first financial prediction to start building analytics history.
+            </p>
+
+            <a
+              href="/predict"
+              className="mt-8 inline-flex rounded-xl bg-black px-6 py-3 text-white transition hover:bg-gray-800"
+            >
+              Create Prediction
+            </a>
+          </div>
         </div>
       </PageContainer>
     );
@@ -84,133 +120,108 @@ const HistoryDashboard = () => {
 
   return (
     <PageContainer>
-      <div className="space-y-10">
+      <div className="space-y-8">
         <div>
           <p className="text-sm font-medium uppercase tracking-widest text-indigo-600">
             Prediction History
           </p>
 
           <h1 className="mt-2 text-4xl font-bold tracking-tight md:text-5xl">
-            Historical Risk Analytics
+            Financial Analytics History
           </h1>
 
           <p className="mt-4 text-gray-600">
-            Review previous financial risk predictions and analytics sessions.
+            Review previous prediction analytics and financial risk forecasts.
           </p>
         </div>
 
-        {history.length === 0 ? (
-          <div className="rounded-2xl border bg-white p-10 text-center shadow-sm">
-            <h2 className="text-2xl font-semibold">
-              No prediction history found
-            </h2>
-
-            <p className="mt-3 text-gray-600">
-              Generate your first financial prediction to see analytics history.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6">
-            {history.map((item) => (
-              <button
-                key={item.predictionId}
-                onClick={() =>
-                  router.push(
-                    `/results/${item.predictionId}`
-                  )
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {historyData.map(
+            (prediction) => (
+              <Link
+                key={
+                  prediction.predictionId
                 }
-                className="rounded-2xl border bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                href={`/results/${prediction.predictionId}`}
               >
-                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                  <div className="space-y-4">
+                <div className="h-full rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                  <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm text-gray-500">
                         Prediction ID
                       </p>
 
-                      <h2 className="mt-1 text-2xl font-bold">
-                        #{item.predictionId}
+                      <h2 className="mt-2 text-2xl font-bold">
+                        #
+                        {
+                          prediction.predictionId
+                        }
                       </h2>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getRiskBadgeColor(
-                          item.overallRiskLevel
-                        )}`}
-                      >
-                        {
-                          item.overallRiskLevel
-                        }
-                      </span>
-
-                      <span className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
-                        {
-                          item.forecastMonths
-                        }{" "}
-                        Months
-                      </span>
-                    </div>
-
-                    <p className="text-sm text-gray-500">
-                      Created on{" "}
-                      {new Date(
-                        item.createdAt
-                      ).toLocaleString()}
-                    </p>
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getRiskBadgeColor(
+                        prediction.overallRiskLevel
+                      )}`}
+                    >
+                      {
+                        prediction.overallRiskLevel
+                      }
+                    </span>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div>
-                      <p className="text-sm text-gray-500">
-                        Income
-                      </p>
-
-                      <p className="mt-1 text-lg font-semibold">
-                        ₹
-                        {item.income.toLocaleString()}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-gray-500">
-                        Expenses
-                      </p>
-
-                      <p className="mt-1 text-lg font-semibold">
-                        ₹
-                        {item.expenses.toLocaleString()}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-gray-500">
-                        Debt
-                      </p>
-
-                      <p className="mt-1 text-lg font-semibold">
-                        ₹
-                        {item.debt.toLocaleString()}
-                      </p>
-                    </div>
-
-                    <div>
+                  <div className="mt-6 space-y-3">
+                    <div className="flex items-center justify-between">
                       <p className="text-sm text-gray-500">
                         Highest Risk
                       </p>
 
-                      <p className="mt-1 text-lg font-semibold">
+                      <p className="font-semibold">
                         {
-                          item.highestRiskScore
+                          prediction.highestRiskScore
+                        }
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500">
+                        DTI Ratio
+                      </p>
+
+                      <p className="font-semibold">
+                        {prediction.dti}%
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500">
+                        Forecast Months
+                      </p>
+
+                      <p className="font-semibold">
+                        {
+                          prediction.forecastMonths
                         }
                       </p>
                     </div>
                   </div>
+
+                  <div className="mt-6 border-t pt-4">
+                    <p className="text-xs text-gray-500">
+                      Generated on
+                    </p>
+
+                    <p className="mt-1 text-sm font-medium">
+                      {new Date(
+                        prediction.createdAt
+                      ).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-              </button>
-            ))}
-          </div>
-        )}
+              </Link>
+            )
+          )}
+        </div>
       </div>
     </PageContainer>
   );

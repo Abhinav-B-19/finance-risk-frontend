@@ -104,7 +104,7 @@ const ResultsDashboard = ({
             ))}
           </div>
 
-          <div className="h-96 rounded-2xl border bg-gray-100" />
+          <div className="h-[500px] rounded-2xl border bg-gray-100" />
         </div>
       </PageContainer>
     );
@@ -113,10 +113,27 @@ const ResultsDashboard = ({
   if (!predictionData) {
     return (
       <PageContainer>
-        <div className="flex items-center justify-center py-24">
-          <p className="text-red-500">
-            Failed to load prediction data
-          </p>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="max-w-md rounded-2xl border bg-white p-10 text-center shadow-sm">
+            <div className="text-5xl">
+              📉
+            </div>
+
+            <h2 className="mt-6 text-2xl font-bold">
+              Prediction Not Found
+            </h2>
+
+            <p className="mt-3 text-gray-500">
+              The requested prediction analytics could not be loaded.
+            </p>
+
+            <a
+              href="/predict"
+              className="mt-8 inline-flex rounded-xl bg-black px-6 py-3 text-white transition hover:bg-gray-800"
+            >
+              Generate New Prediction
+            </a>
+          </div>
         </div>
       </PageContainer>
     );
@@ -204,16 +221,14 @@ const ResultsDashboard = ({
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-4 items-stretch">
-          <div className="lg:col-span-3 h-full">
-            <div className="h-full rounded-2xl border bg-white p-6 shadow-sm">
-              <RiskTrendChart
-                data={chartData}
-              />
-            </div>
+        <div className="grid items-stretch gap-6 lg:grid-cols-4">
+          <div className="lg:col-span-3">
+            <RiskTrendChart
+              data={chartData}
+            />
           </div>
 
-          <div className="h-full rounded-2xl border bg-white p-6 shadow-sm flex flex-col">
+          <div className="flex h-full flex-col rounded-2xl border bg-white p-6 shadow-sm">
             <div className="mb-6">
               <h2 className="text-2xl font-bold tracking-tight">
                 Monthly Forecast Breakdown
