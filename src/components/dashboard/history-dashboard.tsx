@@ -4,29 +4,17 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 
+import { motion } from "framer-motion";
+
 import PageContainer from "@/components/layout/page-container";
 
 import { getPredictionHistory } from "@/services/history-service";
 
 import { PredictionHistoryItem } from "@/types/prediction";
 
-const getRiskBadgeColor = (
-  riskLevel: string
-) => {
-  switch (riskLevel) {
-    case "LOW":
-      return "bg-green-100 text-green-700";
-
-    case "MEDIUM":
-      return "bg-yellow-100 text-yellow-700";
-
-    case "HIGH":
-      return "bg-red-100 text-red-700";
-
-    default:
-      return "bg-gray-100 text-gray-700";
-  }
-};
+import {
+  getRiskBadgeColor,
+} from "@/lib/risk-utils";
 
 const HistoryDashboard = () => {
   const [historyData, setHistoryData] =
@@ -120,7 +108,20 @@ const HistoryDashboard = () => {
 
   return (
     <PageContainer>
-      <div className="space-y-8">
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 10,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        transition={{
+          duration: 0.3,
+        }}
+        className="space-y-8"
+      >
         <div>
           <p className="text-sm font-medium uppercase tracking-widest text-indigo-600">
             Prediction History
@@ -222,7 +223,7 @@ const HistoryDashboard = () => {
             )
           )}
         </div>
-      </div>
+      </motion.div>
     </PageContainer>
   );
 };
