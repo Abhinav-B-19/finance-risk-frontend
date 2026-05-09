@@ -12,6 +12,8 @@ import { getPredictionHistory } from "@/services/history-service";
 
 import { PredictionHistoryItem } from "@/types/prediction";
 
+import { formatDateTime } from "@/lib/date-utils";
+
 import {
   getRiskBadgeColor,
 } from "@/lib/risk-utils";
@@ -213,9 +215,9 @@ const HistoryDashboard = () => {
                     </p>
 
                     <p className="mt-1 text-sm font-medium">
-                      {new Date(
-                        prediction.createdAt
-                      ).toLocaleString()}
+                    {formatDateTime(
+                      prediction.createdAt
+                    )}
                     </p>
                   </div>
                 </div>
