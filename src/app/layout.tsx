@@ -1,14 +1,21 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
 
 import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
-import { Toaster } from "@/components/ui/sonner";
 
-export const metadata: Metadata = {
-  title: "FinanceRisk AI",
-  description: "AI-powered financial risk forecasting platform",
-};
+import Footer from "@/components/layout/footer";
+
+import { Toaster } from "sonner";
+
+export const metadata: Metadata =
+  {
+    title:
+      "FinanceRisk AI",
+
+    description:
+      "AI-powered financial risk prediction platform.",
+  };
 
 export default function RootLayout({
   children,
@@ -27,7 +34,11 @@ export default function RootLayout({
 
           <Footer />
         </div>
-        <Toaster position="top-right" richColors />
+
+        <Toaster
+          position="top-right"
+          richColors
+        />
       </body>
     </html>
   );

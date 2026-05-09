@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { motion } from "framer-motion";
+
 import PageContainer from "@/components/layout/page-container";
 
 import {
@@ -13,45 +15,14 @@ import { getPredictionDetails } from "@/services/prediction-details-service";
 
 import RiskTrendChart from "@/components/charts/risk-trend-chart";
 
+import {
+  getRiskBadgeColor,
+  getRiskTextColor,
+} from "@/lib/risk-utils";
+
 interface ResultsDashboardProps {
   predictionId: string;
 }
-
-const getRiskTextColor = (
-  riskLevel: string
-) => {
-  switch (riskLevel) {
-    case "LOW":
-      return "text-green-500";
-
-    case "MEDIUM":
-      return "text-yellow-500";
-
-    case "HIGH":
-      return "text-red-500";
-
-    default:
-      return "text-gray-500";
-  }
-};
-
-const getRiskBadgeColor = (
-  riskLevel: string
-) => {
-  switch (riskLevel) {
-    case "LOW":
-      return "bg-green-100 text-green-700";
-
-    case "MEDIUM":
-      return "bg-yellow-100 text-yellow-700";
-
-    case "HIGH":
-      return "bg-red-100 text-red-700";
-
-    default:
-      return "bg-gray-100 text-gray-700";
-  }
-};
 
 const ResultsDashboard = ({
   predictionId,
@@ -152,7 +123,20 @@ const ResultsDashboard = ({
 
   return (
     <PageContainer>
-      <div className="space-y-8">
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 10,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        transition={{
+          duration: 0.3,
+        }}
+        className="space-y-8"
+      >
         <div>
           <p className="text-sm font-medium uppercase tracking-widest text-indigo-600">
             Prediction Results
@@ -169,7 +153,7 @@ const ResultsDashboard = ({
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
             <p className="text-sm text-gray-500">
               Forecast Months
             </p>
@@ -182,7 +166,7 @@ const ResultsDashboard = ({
             </h2>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
             <p className="text-sm text-gray-500">
               Highest Risk Score
             </p>
@@ -200,7 +184,7 @@ const ResultsDashboard = ({
             </h2>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
             <p className="text-sm text-gray-500">
               Risk Level
             </p>
@@ -364,7 +348,7 @@ const ResultsDashboard = ({
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </PageContainer>
   );
 };
