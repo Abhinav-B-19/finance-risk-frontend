@@ -11,6 +11,8 @@ import {
 
 import { getPredictionDetails } from "@/services/prediction-details-service";
 
+import RiskTrendChart from "@/components/charts/risk-trend-chart";
+
 interface ResultsDashboardProps {
   predictionId: string;
 }
@@ -55,7 +57,9 @@ const ResultsDashboard = ({
   predictionId,
 }: ResultsDashboardProps) => {
   const [predictionData, setPredictionData] =
-    useState<PredictionDetails | null>(null);
+    useState<PredictionDetails | null>(
+      null
+    );
 
   const [isLoading, setIsLoading] =
     useState(true);
@@ -118,9 +122,20 @@ const ResultsDashboard = ({
     );
   }
 
+  const chartData =
+    predictionData.forecasts.map(
+      (forecast) => ({
+        forecastMonth:
+          forecast.forecastMonth,
+
+        riskScore:
+          forecast.riskScore,
+      })
+    );
+
   return (
     <PageContainer>
-      <div className="space-y-10">
+      <div className="space-y-8">
         <div>
           <p className="text-sm font-medium uppercase tracking-widest text-indigo-600">
             Prediction Results
@@ -189,67 +204,149 @@ const ResultsDashboard = ({
           </div>
         </div>
 
+        <div className="grid gap-6 lg:grid-cols-4 items-stretch">
+          <div className="lg:col-span-3 h-full">
+            <div className="h-full rounded-2xl border bg-white p-6 shadow-sm">
+              <RiskTrendChart
+                data={chartData}
+              />
+            </div>
+          </div>
+
+          <div className="h-full rounded-2xl border bg-white p-6 shadow-sm flex flex-col">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold tracking-tight">
+                Monthly Forecast Breakdown
+              </h2>
+
+              <p className="mt-2 text-gray-500">
+                Forecasted financial risk
+                across future months.
+              </p>
+            </div>
+
+            <div className="flex-1 space-y-4">
+              {predictionData.forecasts.map(
+                (
+                  forecast: Forecast
+                ) => (
+                  <div
+                    key={
+                      forecast.forecastMonth
+                    }
+                    className="rounded-xl border p-4 transition hover:bg-gray-50"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-semibold">
+                          {
+                            forecast.forecastMonth
+                          }
+                        </p>
+
+                        <div className="mt-3">
+                          <span
+                            className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getRiskBadgeColor(
+                              forecast.riskLevel
+                            )}`}
+                          >
+                            {
+                              forecast.riskLevel
+                            }
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p
+                          className={`text-3xl font-bold ${getRiskTextColor(
+                            forecast.riskLevel
+                          )}`}
+                        >
+                          {
+                            forecast.riskScore
+                          }
+                        </p>
+
+                        <p className="text-xs text-gray-500">
+                          Risk Score
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <div className="mb-6">
             <h2 className="text-2xl font-bold tracking-tight">
-              Monthly Forecast Breakdown
+              Risk Insights
             </h2>
 
-            <p className="mt-2 text-gray-600">
-              Forecasted financial risk
-              across future months.
+            <p className="mt-2 text-gray-500">
+              Automated interpretation of
+              financial risk forecasts.
             </p>
           </div>
 
-          <div className="space-y-4">
-            {predictionData.forecasts.map(
-              (
-                forecast: Forecast
-              ) => (
-                <div
-                  key={
-                    forecast.forecastMonth
-                  }
-                  className="flex items-center justify-between rounded-xl border p-5 transition hover:bg-gray-50"
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl bg-gray-50 p-5">
+              <p className="text-sm font-medium text-gray-500">
+                Overall Risk Level
+              </p>
+
+              <p className="mt-3 text-base leading-7 text-gray-700">
+                Financial profile currently
+                indicates a
+                <span
+                  className={`ml-1 font-semibold ${getRiskTextColor(
+                    predictionData.summary
+                      .overallRiskLevel
+                  )}`}
                 >
-                  <div>
-                    <p className="text-lg font-semibold">
-                      {
-                        forecast.forecastMonth
-                      }
-                    </p>
+                  {
+                    predictionData.summary
+                      .overallRiskLevel
+                  }
+                </span>{" "}
+                risk pattern.
+              </p>
+            </div>
 
-                    <div className="mt-2">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getRiskBadgeColor(
-                          forecast.riskLevel
-                        )}`}
-                      >
-                        {
-                          forecast.riskLevel
-                        }
-                      </span>
-                    </div>
-                  </div>
+            <div className="rounded-xl bg-gray-50 p-5">
+              <p className="text-sm font-medium text-gray-500">
+                Forecast Analysis
+              </p>
 
-                  <div className="text-right">
-                    <p
-                      className={`text-3xl font-bold ${getRiskTextColor(
-                        forecast.riskLevel
-                      )}`}
-                    >
-                      {
-                        forecast.riskScore
-                      }
-                    </p>
+              <p className="mt-3 text-base leading-7 text-gray-700">
+                Highest projected financial
+                risk score is
+                <span className="ml-1 font-semibold">
+                  {
+                    predictionData.summary
+                      .highestRiskScore
+                  }
+                </span>
+                .
+              </p>
+            </div>
 
-                    <p className="mt-1 text-sm text-gray-500">
-                      Risk Score
-                    </p>
-                  </div>
-                </div>
-              )
-            )}
+            <div className="rounded-xl bg-gray-50 p-5">
+              <p className="text-sm font-medium text-gray-500">
+                Debt-to-Income Analysis
+              </p>
+
+              <p className="mt-3 text-base leading-7 text-gray-700">
+                Current DTI ratio is
+                <span className="ml-1 font-semibold">
+                  {predictionData.dti}%
+                </span>
+                .
+              </p>
+            </div>
           </div>
         </div>
       </div>
