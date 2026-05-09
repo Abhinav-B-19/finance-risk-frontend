@@ -31,49 +31,53 @@ const Navbar = () => {
     );
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
-      <div className="relative flex h-16 items-center justify-between px-6">
+    <header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur">
+      <div className="mx-auto grid h-16 max-w-screen-2xl grid-cols-3 items-center px-3 sm:px-6 lg:px-8">
         
-        {/* LEFT SECTION */}
-        <div className="flex items-center">
-          {isResultsPage && (
+        {/* LEFT */}
+        <div className="flex items-center justify-start">
+          {isResultsPage ? (
             <button
               onClick={() =>
                 router.back()
               }
-              className="rounded-xl border px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-black"
+              className="rounded-xl border px-3 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-100 hover:text-black sm:text-sm"
             >
               ← Back
             </button>
+          ) : (
+            <div className="h-10 w-[72px]" />
           )}
         </div>
 
-        {/* CENTER LOGO */}
-        <div className="absolute left-1/2 -translate-x-1/2">
+        {/* CENTER */}
+        <div className="flex justify-center">
           <Link
             href="/predict"
-            className="text-2xl font-bold tracking-tight"
+            className="truncate text-center text-lg font-bold tracking-tight sm:text-2xl"
           >
             FinanceRisk AI
           </Link>
         </div>
 
-        {/* RIGHT NAVIGATION */}
-        <nav className="ml-auto flex items-center gap-2">
+        {/* RIGHT */}
+        <nav className="flex items-center justify-end gap-2">
           {navItems.map((item) => {
             const isActive =
               item.href === "/history"
-                ? pathname === "/history" ||
+                ? pathname ===
+                    "/history" ||
                   pathname.startsWith(
                     "/results/"
                   )
-                : pathname === item.href;
+                : pathname ===
+                  item.href;
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                className={`flex h-10 w-[88px] items-center justify-center rounded-xl text-xs font-medium transition sm:text-sm ${
                   isActive
                     ? "bg-black text-white"
                     : "text-gray-600 hover:bg-gray-100 hover:text-black"

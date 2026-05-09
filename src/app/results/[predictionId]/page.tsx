@@ -12,7 +12,7 @@ const ResultsPage = async ({
   const { predictionId } = await params;
 
   return (
-    <section className="py-16">
+    <section className="py-0">
       <ResultsDashboard
         predictionId={predictionId}
       />

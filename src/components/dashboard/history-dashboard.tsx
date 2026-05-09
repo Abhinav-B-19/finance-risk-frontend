@@ -71,7 +71,7 @@ const HistoryDashboard = () => {
             <div className="h-12 w-80 rounded bg-gray-200" />
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
@@ -130,11 +130,7 @@ const HistoryDashboard = () => {
         className="space-y-8"
       >
         <div>
-          <p className="text-sm font-medium uppercase tracking-widest text-indigo-600">
-            Prediction History
-          </p>
-
-          <h1 className="mt-2 text-4xl font-bold tracking-tight md:text-5xl">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             Financial Analytics History
           </h1>
 
@@ -143,7 +139,7 @@ const HistoryDashboard = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {historyData.map(
             (prediction) => (
               <Link
@@ -152,7 +148,7 @@ const HistoryDashboard = () => {
                 }
                 href={`/results/${prediction.predictionId}`}
               >
-                <div className="h-full rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <div className="h-full rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-6">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm text-gray-500">
@@ -197,7 +193,7 @@ const HistoryDashboard = () => {
                       </p>
 
                       <p className="font-semibold">
-                        {prediction.dti}%
+                        {(prediction.dti * 100).toFixed(1)}%
                       </p>
                     </div>
 

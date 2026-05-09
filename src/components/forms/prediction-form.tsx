@@ -28,11 +28,15 @@ import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
 
+import PageContainer from "@/components/layout/page-container";
+
 const PredictionForm = () => {
   const router = useRouter();
 
   const form = useForm<PredictionSchemaType>({
-    resolver: zodResolver(predictionSchema),
+    resolver: zodResolver(
+      predictionSchema
+    ),
 
     defaultValues: {
       name: "",
@@ -79,9 +83,6 @@ const PredictionForm = () => {
         `/results/${response.predictionId}`
       );
     } catch (error: any) {
-      toast.error(
-        "Failed to generate prediction"
-      );
       console.error(error);
 
       let errorMessage =
@@ -96,7 +97,8 @@ const PredictionForm = () => {
           "<!DOCTYPE"
         )
       ) {
-        errorMessage = backendMessage;
+        errorMessage =
+          backendMessage;
       }
 
       toast.error(errorMessage, {
@@ -112,19 +114,20 @@ const PredictionForm = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-white overflow-hidden">
-      <div className="h-screen w-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-3xl h-full flex flex-col justify-center">
+    <PageContainer>
+      <div className="py-2 sm:py-4 lg:py-2">
+        <div className="mx-auto w-full max-w-4xl">
+          
           {/* Heading */}
-          <div className="mb-6 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+          <div className="mb-6 text-center lg:mb-5">
+            <h2 className="text-3xl font-bold leading-tight lg:text-5xl">
               Financial Risk Prediction
-            </h1>
+            </h2>
 
-            <p className="mt-2 text-gray-500 text-sm md:text-base">
+            <p className="mt-2 text-sm text-gray-500 md:text-base">
               Enter your financial details
-              to generate AI-powered risk
-              forecasts.
+              to generate AI-powered
+              risk forecasts.
             </p>
           </div>
 
@@ -134,7 +137,7 @@ const PredictionForm = () => {
               onSubmit={form.handleSubmit(
                 onSubmit
               )}
-              className="space-y-4"
+              className="space-y-4 lg:space-y-3"
             >
               {/* Full Name */}
               <FormField
@@ -154,7 +157,7 @@ const PredictionForm = () => {
                         disabled={
                           isSubmitting
                         }
-                        className="h-12 rounded-xl text-base"
+                        className="h-12 rounded-2xl text-base"
                         {...field}
                       />
                     </FormControl>
@@ -183,7 +186,7 @@ const PredictionForm = () => {
                         disabled={
                           isSubmitting
                         }
-                        className="h-12 rounded-xl text-base"
+                        className="h-12 rounded-2xl text-base"
                         {...field}
                       />
                     </FormControl>
@@ -212,7 +215,7 @@ const PredictionForm = () => {
                         disabled={
                           isSubmitting
                         }
-                        className="h-12 rounded-xl text-base"
+                        className="h-12 rounded-2xl text-base"
                         {...field}
                         value={
                           field.value ??
@@ -252,7 +255,7 @@ const PredictionForm = () => {
                         disabled={
                           isSubmitting
                         }
-                        className="h-12 rounded-xl text-base"
+                        className="h-12 rounded-2xl text-base"
                         {...field}
                         value={
                           field.value ??
@@ -292,7 +295,7 @@ const PredictionForm = () => {
                         disabled={
                           isSubmitting
                         }
-                        className="h-12 rounded-xl text-base"
+                        className="h-12 rounded-2xl text-base"
                         {...field}
                         value={
                           field.value ??
@@ -317,7 +320,7 @@ const PredictionForm = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-12 w-full rounded-xl bg-black text-base font-semibold text-white hover:bg-gray-900"
+                className="h-12 w-full rounded-2xl bg-black text-base font-semibold text-white transition hover:bg-gray-900"
               >
                 {isSubmitting
                   ? "Generating Prediction..."
@@ -327,7 +330,7 @@ const PredictionForm = () => {
           </Form>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

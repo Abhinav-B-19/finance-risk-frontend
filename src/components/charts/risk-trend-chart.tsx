@@ -21,42 +21,75 @@ const RiskTrendChart = ({
   data,
 }: RiskTrendChartProps) => {
   return (
-    <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight">
-          Risk Trend Analysis
-        </h2>
-
-        <p className="mt-2 text-gray-500">
-          Forecasted financial risk progression across future months.
-        </p>
-      </div>
-
-      <div className="h-[350px] w-full">
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
+    <div className="h-[280px] w-full sm:h-[380px] lg:h-[430px]">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+      >
+        <LineChart
+          data={data}
+          margin={{
+            top: 10,
+            right: 20,
+            left: 10,
+            bottom: 10,
+          }}
         >
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#e5e7eb"
+          />
 
-            <XAxis dataKey="forecastMonth" />
+          <XAxis
+            dataKey="forecastMonth"
+            tick={{
+              fontSize: 10,
+              fontWeight: 700,
+              fill: "#111827",
+            }}
+            tickMargin={12}
+          />
 
-            <YAxis />
+          <YAxis
+            tick={{
+              fontSize: 10,
+              fontWeight: 700,
+              fill: "#111827",
+            }}
+            tickMargin={10}
+            width={35}
+          />
 
-            <Tooltip />
+          <Tooltip
+            wrapperStyle={{
+              outline: "none",
+            }}
+            contentStyle={{
+              borderRadius: "12px",
+              border:
+                "1px solid #e5e7eb",
+              fontSize: "12px",
+              fontWeight: "600",
+              padding: "10px",
+            }}
+          />
 
-            <Line
-              type="monotone"
-              dataKey="riskScore"
-              stroke="#000000"
-              strokeWidth={3}
-              dot={{ r: 6 }}
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+          <Line
+            type="monotone"
+            dataKey="riskScore"
+            stroke="#000000"
+            strokeWidth={3}
+            dot={{
+              r: 5,
+              strokeWidth: 3,
+              fill: "#ffffff",
+            }}
+            activeDot={{
+              r: 7,
+            }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
