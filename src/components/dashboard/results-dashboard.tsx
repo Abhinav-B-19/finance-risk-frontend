@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import { motion } from "framer-motion";
 
@@ -26,6 +29,19 @@ import { formatDateTime } from "@/lib/date-utils";
 interface ResultsDashboardProps {
   predictionId: string;
 }
+
+const formatCurrency = (
+  value: number
+) => {
+  return new Intl.NumberFormat(
+    "en-IN",
+    {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }
+  ).format(value ?? 0);
+};
 
 const ResultsDashboard = ({
   predictionId,
@@ -109,7 +125,8 @@ const ResultsDashboard = ({
             </h2>
 
             <p className="mt-3 text-gray-500">
-              The requested prediction analytics could not be loaded.
+              The requested prediction
+              analytics could not be loaded.
             </p>
 
             <a
@@ -134,6 +151,33 @@ const ResultsDashboard = ({
           forecast.riskScore,
       })
     );
+
+  const inputSummaryCards = [
+    {
+      label: "Monthly Income",
+      value: formatCurrency(
+        predictionData.income
+      ),
+      description:
+        "Income entered for this prediction.",
+    },
+    {
+      label: "Monthly Expenses",
+      value: formatCurrency(
+        predictionData.expenses
+      ),
+      description:
+        "Expenses entered for this prediction.",
+    },
+    {
+      label: "Total Debt",
+      value: formatCurrency(
+        predictionData.debt
+      ),
+      description:
+        "Debt entered for this prediction.",
+    },
+  ];
 
   return (
     <PageContainer>
@@ -259,7 +303,9 @@ const ResultsDashboard = ({
             </h2>
 
             <p className="mt-2 text-gray-500">
-              Forecasted financial risk progression across future months.
+              Forecasted financial risk
+              progression across future
+              months.
             </p>
 
             <div className="mt-4 h-[280px] sm:h-[340px] md:h-[400px] lg:h-[450px]">
@@ -275,7 +321,8 @@ const ResultsDashboard = ({
             </h2>
 
             <p className="mt-2 text-gray-500">
-              Forecasted financial risk across future months.
+              Forecasted financial risk
+              across future months.
             </p>
 
             <div className="mt-8 space-y-4">
@@ -331,13 +378,51 @@ const ResultsDashboard = ({
           </div>
         </div>
 
+        {/* Input Summary - placed before Risk Insights */}
+        <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+          <div>
+            <h2 className="text-3xl font-bold">
+              Input Summary
+            </h2>
+
+            <p className="mt-2 text-gray-500">
+              Financial details entered for
+              this prediction result.
+            </p>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {inputSummaryCards.map(
+              (card) => (
+                <div
+                  key={card.label}
+                  className="rounded-2xl bg-gray-50 p-5"
+                >
+                  <p className="text-sm text-gray-500">
+                    {card.label}
+                  </p>
+
+                  <h3 className="mt-3 text-2xl font-bold text-gray-950">
+                    {card.value}
+                  </h3>
+
+                  <p className="mt-2 text-xs text-gray-500">
+                    {card.description}
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+
         <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6 lg:p-8">
           <h2 className="text-3xl font-bold">
             Risk Insights
           </h2>
 
           <p className="mt-2 text-gray-500">
-            Automated interpretation of financial risk forecasts.
+            Automated interpretation of
+            financial risk forecasts.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -347,7 +432,8 @@ const ResultsDashboard = ({
               </h3>
 
               <p className="mt-3 text-gray-600">
-                Financial profile currently indicates a{" "}
+                Financial profile currently
+                indicates a{" "}
                 <span
                   className={`font-semibold ${getRiskTextColor(
                     predictionData.summary
@@ -369,7 +455,8 @@ const ResultsDashboard = ({
               </h3>
 
               <p className="mt-3 text-gray-600">
-                Highest projected financial risk score is{" "}
+                Highest projected financial
+                risk score is{" "}
                 <span className="font-semibold text-black">
                   {
                     predictionData.summary
@@ -388,10 +475,10 @@ const ResultsDashboard = ({
               <p className="mt-3 text-gray-600">
                 Current DTI ratio is{" "}
                 <span className="font-semibold text-black">
-                {(
-                  predictionData.dti * 100
-                ).toFixed(1)}
-                %
+                  {(
+                    predictionData.dti * 100
+                  ).toFixed(1)}
+                  %
                 </span>
                 .
               </p>

@@ -75,8 +75,12 @@ export interface HistoryTrendPoint {
 
 export interface FutureRiskForecast {
   forecastMonth: string;
-  predictedRiskScore: number;
-  predictedRiskLevel: string;
+
+  predictedRiskScore?: number;
+  predictedRiskLevel?: string;
+
+  riskScore?: number;
+  riskLevel?: string;
 }
 
 export interface HistoryAnalytics {

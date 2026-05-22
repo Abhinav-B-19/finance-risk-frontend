@@ -16,35 +16,59 @@ interface HistoryRiskTrendChartProps {
   data: HistoryTrendPoint[];
 }
 
-const formatDate = (value: string) => {
-  const date = new Date(value);
-
-  return date.toLocaleDateString("en-IN", {
+const formatAxisDate = (
+  createdAt: string
+) => {
+  return new Date(
+    createdAt
+  ).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
+  });
+};
+
+const formatTooltipDate = (
+  createdAt: string
+) => {
+  return new Date(
+    createdAt
+  ).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 const HistoryRiskTrendChart = ({
   data,
 }: HistoryRiskTrendChartProps) => {
-  const chartData = data.map((item) => ({
-    date: formatDate(item.createdAt),
-    riskScore: Number(
-      item.highestRiskScore.toFixed(2)
-    ),
-  }));
-
-  if (!chartData.length) {
-    return (
-      <div className="flex h-[260px] items-center justify-center rounded-2xl border bg-white text-sm text-gray-500">
-        No risk trend data available
-      </div>
-    );
-  }
+  const chartData = [...data]
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() -
+        new Date(b.createdAt).getTime()
+    )
+    .map((item, index) => ({
+      chartLabel: formatAxisDate(
+        item.createdAt
+      ),
+      tooltipDate: formatTooltipDate(
+        item.createdAt
+      ),
+      riskScore: Number(
+        item.highestRiskScore ?? 0
+      ),
+      predictionId:
+        item.predictionId,
+      uniqueKey: `${formatAxisDate(
+        item.createdAt
+      )}-${item.predictionId}-${index}`,
+    }));
 
   return (
-    <div className="h-[260px] w-full">
+    <div className="h-[340px] w-full">
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -52,33 +76,86 @@ const HistoryRiskTrendChart = ({
         <LineChart
           data={chartData}
           margin={{
-            top: 10,
-            right: 20,
+            top: 20,
+            right: 24,
             left: 0,
-            bottom: 10,
+            bottom: 20,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#e5e7eb"
+          />
 
           <XAxis
-            dataKey="date"
-            tick={{ fontSize: 12 }}
+            dataKey="chartLabel"
+            interval="preserveStartEnd"
+            minTickGap={24}
+            tick={{
+              fontSize: 12,
+              fill: "#6b7280",
+            }}
+            tickLine={false}
+            axisLine={{
+              stroke: "#d1d5db",
+            }}
           />
 
           <YAxis
             domain={[0, 100]}
-            tick={{ fontSize: 12 }}
+            tick={{
+              fontSize: 12,
+              fill: "#6b7280",
+            }}
+            tickLine={false}
+            axisLine={{
+              stroke: "#d1d5db",
+            }}
           />
 
-          <Tooltip />
+          <Tooltip
+            contentStyle={{
+              borderRadius: "16px",
+              border: "1px solid #e5e7eb",
+              boxShadow:
+                "0 10px 30px rgba(0,0,0,0.08)",
+            }}
+            formatter={(value) => [
+              Number(value).toFixed(2),
+              "Risk Score",
+            ]}
+            labelFormatter={(
+              _label,
+              payload
+            ) => {
+              const item =
+                payload?.[0]?.payload;
+
+              if (!item) {
+                return "";
+              }
+
+              return `${item.tooltipDate} • Prediction #${item.predictionId}`;
+            }}
+          />
 
           <Line
             type="monotone"
             dataKey="riskScore"
+            stroke="#2563eb"
             strokeWidth={3}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
-            name="Risk Score"
+            dot={{
+              r: 4,
+              strokeWidth: 2,
+              fill: "#ffffff",
+              stroke: "#2563eb",
+            }}
+            activeDot={{
+              r: 7,
+              strokeWidth: 2,
+              fill: "#2563eb",
+              stroke: "#ffffff",
+            }}
           />
         </LineChart>
       </ResponsiveContainer>
