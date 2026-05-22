@@ -16,33 +16,57 @@ interface HistoryDtiTrendChartProps {
   data: HistoryTrendPoint[];
 }
 
-const formatDate = (value: string) => {
-  const date = new Date(value);
-
-  return date.toLocaleDateString("en-IN", {
+const formatAxisDate = (
+  createdAt: string
+) => {
+  return new Date(
+    createdAt
+  ).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
+  });
+};
+
+const formatTooltipDate = (
+  createdAt: string
+) => {
+  return new Date(
+    createdAt
+  ).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 const HistoryDtiTrendChart = ({
   data,
 }: HistoryDtiTrendChartProps) => {
-  const chartData = data.map((item) => ({
-    date: formatDate(item.createdAt),
-    dti: Number(item.dti.toFixed(2)),
-  }));
-
-  if (!chartData.length) {
-    return (
-      <div className="flex h-[240px] items-center justify-center rounded-2xl border bg-white text-sm text-gray-500">
-        No DTI trend data available
-      </div>
-    );
-  }
+  const chartData = [...data]
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() -
+        new Date(b.createdAt).getTime()
+    )
+    .map((item, index) => ({
+      chartLabel: formatAxisDate(
+        item.createdAt
+      ),
+      tooltipDate: formatTooltipDate(
+        item.createdAt
+      ),
+      dti: Number(item.dti ?? 0),
+      predictionId:
+        item.predictionId,
+      uniqueKey: `${formatAxisDate(
+        item.createdAt
+      )}-${item.predictionId}-${index}`,
+    }));
 
   return (
-    <div className="h-[240px] w-full">
+    <div className="h-[280px] w-full">
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -50,30 +74,85 @@ const HistoryDtiTrendChart = ({
         <LineChart
           data={chartData}
           margin={{
-            top: 10,
-            right: 20,
+            top: 20,
+            right: 24,
             left: 0,
-            bottom: 10,
+            bottom: 20,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-
-          <XAxis
-            dataKey="date"
-            tick={{ fontSize: 12 }}
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#e5e7eb"
           />
 
-          <YAxis tick={{ fontSize: 12 }} />
+          <XAxis
+            dataKey="chartLabel"
+            interval="preserveStartEnd"
+            minTickGap={28}
+            tick={{
+              fontSize: 11,
+              fill: "#6b7280",
+            }}
+            tickLine={false}
+            axisLine={{
+              stroke: "#d1d5db",
+            }}
+          />
 
-          <Tooltip />
+          <YAxis
+            tick={{
+              fontSize: 11,
+              fill: "#6b7280",
+            }}
+            tickLine={false}
+            axisLine={{
+              stroke: "#d1d5db",
+            }}
+          />
+
+          <Tooltip
+            contentStyle={{
+              borderRadius: "16px",
+              border: "1px solid #e5e7eb",
+              boxShadow:
+                "0 10px 30px rgba(0,0,0,0.08)",
+            }}
+            formatter={(value) => [
+              `${Number(value).toFixed(1)}%`,
+              "DTI Ratio",
+            ]}
+            labelFormatter={(
+              _label,
+              payload
+            ) => {
+              const item =
+                payload?.[0]?.payload;
+
+              if (!item) {
+                return "";
+              }
+
+              return `${item.tooltipDate} • Prediction #${item.predictionId}`;
+            }}
+          />
 
           <Line
             type="monotone"
             dataKey="dti"
+            stroke="#7c3aed"
             strokeWidth={3}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
-            name="DTI Ratio"
+            dot={{
+              r: 4,
+              strokeWidth: 2,
+              fill: "#ffffff",
+              stroke: "#7c3aed",
+            }}
+            activeDot={{
+              r: 7,
+              strokeWidth: 2,
+              fill: "#7c3aed",
+              stroke: "#ffffff",
+            }}
           />
         </LineChart>
       </ResponsiveContainer>
