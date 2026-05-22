@@ -1,6 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import { useForm } from "react-hook-form";
 
@@ -14,6 +22,16 @@ import {
 } from "@/validations/prediction-schema";
 
 import { createPrediction } from "@/services/prediction-service";
+
+import {
+  getActiveUser,
+  setActiveUser,
+  USER_SESSION_CHANGED_EVENT,
+} from "@/lib/user-session";
+
+import {
+  ActiveUserSession,
+} from "@/types/prediction";
 
 import {
   Form,
@@ -32,6 +50,16 @@ import PageContainer from "@/components/layout/page-container";
 
 const PredictionForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [activeUser, setActiveUserState] =
+    useState<ActiveUserSession | null>(
+      null
+    );
+
+  const isNewUserMode =
+    searchParams.get("mode") ===
+    "new-user";
 
   const form = useForm<PredictionSchemaType>({
     resolver: zodResolver(
@@ -50,6 +78,54 @@ const PredictionForm = () => {
   const isSubmitting =
     form.formState.isSubmitting;
 
+  const isUserLocked =
+    !!activeUser && !isNewUserMode;
+
+  const applyUserToForm = (
+    user: ActiveUserSession | null
+  ) => {
+    if (isNewUserMode) {
+      setActiveUserState(null);
+
+      form.setValue("name", "");
+      form.setValue("email", "");
+
+      return;
+    }
+
+    setActiveUserState(user);
+
+    if (user) {
+      form.setValue("name", user.name);
+      form.setValue("email", user.email);
+    } else {
+      form.setValue("name", "");
+      form.setValue("email", "");
+    }
+  };
+
+  useEffect(() => {
+    applyUserToForm(getActiveUser());
+
+    const handleSessionChanged = () => {
+      applyUserToForm(getActiveUser());
+    };
+
+    window.addEventListener(
+      USER_SESSION_CHANGED_EVENT,
+      handleSessionChanged
+    );
+
+    return () => {
+      window.removeEventListener(
+        USER_SESSION_CHANGED_EVENT,
+        handleSessionChanged
+      );
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNewUserMode]);
+
   const onSubmit = async (
     data: PredictionSchemaType
   ) => {
@@ -57,10 +133,16 @@ const PredictionForm = () => {
       const response =
         await createPrediction(data);
 
-      localStorage.setItem(
-        "userKey",
-        response.userKey
-      );
+      const userToStore: ActiveUserSession =
+        {
+          userKey: response.userKey,
+          name: data.name,
+          email: data.email,
+        };
+
+      setActiveUser(userToStore);
+
+      setActiveUserState(userToStore);
 
       toast.success(
         "Prediction generated successfully",
@@ -117,7 +199,6 @@ const PredictionForm = () => {
     <PageContainer>
       <div className="py-2 sm:py-4 lg:py-2">
         <div className="mx-auto w-full max-w-4xl">
-          
           {/* Heading */}
           <div className="mb-6 text-center lg:mb-5">
             <h2 className="text-3xl font-bold leading-tight lg:text-5xl">
@@ -129,9 +210,28 @@ const PredictionForm = () => {
               to generate AI-powered
               risk forecasts.
             </p>
+
+            {isUserLocked && (
+              <p className="mt-3 text-xs text-gray-500">
+                Using selected user:{" "}
+                <span className="font-semibold text-gray-800">
+                  {activeUser.name}
+                </span>
+                . Use the navbar switcher
+                to change or add users.
+              </p>
+            )}
+
+            {isNewUserMode && (
+              <p className="mt-3 text-xs text-gray-500">
+                New user mode enabled.
+                Enter name and email to add
+                another cached user.
+              </p>
+            )}
           </div>
 
-          {/* Form */}
+          {/* Form only */}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(
@@ -155,9 +255,10 @@ const PredictionForm = () => {
                       <Input
                         placeholder="Enter your full name"
                         disabled={
-                          isSubmitting
+                          isSubmitting ||
+                          isUserLocked
                         }
-                        className="h-12 rounded-2xl text-base"
+                        className="h-12 rounded-2xl text-base disabled:bg-gray-100 disabled:text-gray-600"
                         {...field}
                       />
                     </FormControl>
@@ -184,9 +285,10 @@ const PredictionForm = () => {
                         type="email"
                         placeholder="Enter your email"
                         disabled={
-                          isSubmitting
+                          isSubmitting ||
+                          isUserLocked
                         }
-                        className="h-12 rounded-2xl text-base"
+                        className="h-12 rounded-2xl text-base disabled:bg-gray-100 disabled:text-gray-600"
                         {...field}
                       />
                     </FormControl>
