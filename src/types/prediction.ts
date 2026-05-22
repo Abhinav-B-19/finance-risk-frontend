@@ -55,3 +55,36 @@ export interface PredictionDetails {
 
   forecasts: Forecast[];
 }
+
+export interface ActiveUserSession {
+  userKey: string;
+  name: string;
+  email: string;
+}
+
+export interface HistoryTrendPoint {
+  predictionId: number;
+  createdAt: string;
+  income: number;
+  expenses: number;
+  debt: number;
+  dti: number;
+  highestRiskScore: number;
+  overallRiskLevel: string;
+}
+
+export interface FutureRiskForecast {
+  forecastMonth: string;
+  predictedRiskScore: number;
+  predictedRiskLevel: string;
+}
+
+export interface HistoryAnalytics {
+  userKey: string;
+  totalPredictions: number;
+  averageRiskScore: number;
+  highestRiskScore: number;
+  latestRiskLevel: string;
+  historicalTrend: HistoryTrendPoint[];
+  futureTrendForecast: FutureRiskForecast[];
+}
